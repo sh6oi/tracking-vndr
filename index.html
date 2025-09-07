@@ -3,189 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام تتبع الطلبات</title>
+    <title>تتبع الطلبات - خدمة الشحن</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
-        
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: #f8fafc;
-        }
-        
         .gradient-bg {
-            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        
-        .timeline-item::before {
+        .card-shadow {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .status-line {
+            position: relative;
+        }
+        .status-line::before {
             content: '';
             position: absolute;
-            right: -1.75rem;
-            top: 0;
-            width: 1px;
-            height: 100%;
-            background-color: #e2e8f0;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            z-index: 1;
         }
-        
-        .timeline-dot {
+        .status-progress {
             position: absolute;
-            right: -2.25rem;
-            top: 0.25rem;
-            width: 1rem;
-            height: 1rem;
-            border-radius: 50%;
-            border: 3px solid #fff;
-            box-shadow: 0 0 0 3px #6c5ce7;
+            top: 50%;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981, #059669);
+            border-radius: 2px;
+            z-index: 2;
+            transition: width 1s ease-in-out;
+            transform: translateY(-50%);
         }
-        
-        .timeline-item.active .timeline-dot {
-            background-color: #6c5ce7;
-            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.5);
+        .status-step {
+            position: relative;
+            z-index: 3;
+        }
+        .pulse-animation {
             animation: pulse 2s infinite;
         }
-        
-        .timeline-item.completed .timeline-dot {
-            background-color: #00b894;
-            box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.3);
-        }
-        
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(108, 92, 231, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(108, 92, 231, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(108, 92, 231, 0); }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
-        
-        .status-badge {
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
         }
-        
-        .search-input:focus {
-            box-shadow: 0 0 0 2px #6c5ce7;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        
-        .card-shadow {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        
-        .spinner {
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .search-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
 <body class="min-h-screen bg-gray-50">
     <!-- Header -->
-    <header class="gradient-bg text-white py-6 px-4 shadow-lg">
-        <div class="container mx-auto">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-bold flex items-center">
-                        <i class="fas fa-box-open ml-2"></i>
-                        نظام تتبع الطلبات
-                    </h1>
-                    <p class="text-sm md:text-base mt-1 opacity-90">تابع حالة طلبك خطوة بخطوة</p>
-                </div>
-                <div class="hidden md:block">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3710/3710304.png" alt="Delivery" class="h-16">
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
-        <div class="max-w-3xl mx-auto">
-            <!-- Search Card -->
-            <div class="bg-white rounded-xl p-6 mb-8 card-shadow">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-search ml-2 text-purple-600"></i>
-                    ابحث عن طلبك
-                </h2>
-                
-                <div id="errorAlert" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 flex items-center">
-                    <i class="fas fa-exclamation-circle ml-2"></i>
-                    <span id="errorText">رقم الطلب غير صحيح أو غير موجود</span>
-                </div>
-                
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="flex-1 relative">
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
-                            <i class="fas fa-hashtag"></i>
-                        </div>
-                        <input type="text" id="orderNumber" 
-                               class="w-full pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 search-input" 
-                               placeholder="أدخل رقم الطلب هنا...">
-                    </div>
-                    <button id="trackBtn" 
-                            class="gradient-bg hover:opacity-90 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center">
-                        <i class="fas fa-search ml-2"></i>
-                        تتبع الطلب
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Loading Indicator -->
-            <div id="loading" class="hidden text-center py-12">
-                <div class="inline-block border-4 border-purple-500 border-t-transparent rounded-full w-12 h-12 spinner mb-4"></div>
-                <p class="text-gray-600 font-medium">جاري البحث عن طلبك...</p>
-            </div>
-            
-            <!-- Order Status Card -->
-            <div id="orderStatus" class="hidden bg-white rounded-xl p-6 card-shadow">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 p-4 bg-gray-50 rounded-lg">
-                    <div class="mb-3 md:mb-0">
-                        <h3 class="text-sm text-gray-500">رقم الطلب</h3>
-                        <p id="displayOrderNumber" class="text-lg font-bold text-purple-600 flex items-center">
-                            <i class="fas fa-hashtag ml-2"></i>
-                            <span>123456</span>
-                        </p>
-                    </div>
-                    <div>
-                        <h3 class="text-sm text-gray-500">الحالة الحالية</h3>
-                        <p id="currentStatus" class="status-badge text-white px-4 py-1 rounded-full text-sm font-medium inline-flex items-center">
-                            <i class="fas fa-circle-notch animate-spin ml-2 text-xs"></i>
-                            <span>جاري التجهيز</span>
-                        </p>
-                    </div>
-                </div>
-                
-                <h3 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
-                    <i class="fas fa-map-marked-alt ml-2 text-purple-600"></i>
-                    مسار الطلب
-                </h3>
-                
-                <div class="relative">
-                    <!-- Timeline -->
-                    <div id="statusTimeline" class="space-y-8 pl-8">
-                        <!-- Timeline items will be added here dynamically -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-white py-6 border-t border-gray-200 mt-12">
+    <div class="gradient-bg text-white py-8 md:py-16">
         <div class="container mx-auto px-4 text-center">
-            <p class="text-gray-600 text-sm">
-                <i class="fas fa-shield-alt ml-2 text-purple-600"></i>
-                نظام آمن لتتبع طلباتك © 2023 جميع الحقوق محفوظة
-            </p>
+            <h1 class="text-3xl md:text-5xl font-bold mb-2 md:mb-4">🚚 تتبع طلبك</h1>
+            <p class="text-lg md:text-xl opacity-90">تابع رحلة طلبك من الشراء حتى التسليم</p>
         </div>
-    </footer>
+    </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <!-- Search Section -->
+    <div class="container mx-auto px-4 -mt-4 md:-mt-8 relative z-10">
+        <div class="search-container rounded-2xl p-4 md:p-8 card-shadow max-w-2xl mx-auto">
+            <div class="text-center mb-4 md:mb-6">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-2">أدخل رقم التتبع</h2>
+                <p class="text-sm md:text-base text-gray-600">أدخل رقم التتبع الخاص بطلبك لمعرفة حالته الحالية</p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-3 md:gap-4">
+                <input type="text" id="trackingInput" 
+                       class="flex-1 px-4 md:px-6 py-3 md:py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none text-base md:text-lg text-center font-mono"
+                       placeholder="مثال: TRK123456789">
+                <button onclick="trackOrder()" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg transition-all transform hover:scale-105 w-full sm:w-auto">
+                    🔍 تتبع
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="container mx-auto px-4 py-6 md:py-12">
+        <div id="trackingResults" class="hidden">
+            <!-- Results will be displayed here -->
+        </div>
+        
+        <!-- No Results Message -->
+        <div id="noResults" class="hidden text-center py-8 md:py-12">
+            <div class="max-w-md mx-auto px-4">
+                <div class="text-4xl md:text-6xl mb-4">📦</div>
+                <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-2">لم يتم العثور على الطلب</h3>
+                <p class="text-sm md:text-base text-gray-600">تأكد من رقم التتبع وحاول مرة أخرى</p>
+            </div>
+        </div>
+
+        <!-- Loading Animation -->
+        <div id="loadingAnimation" class="hidden text-center py-8 md:py-12">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 md:h-12 md:w-12 border-b-2 border-blue-600 mb-4"></div>
+            <p class="text-sm md:text-base text-gray-600">جاري البحث عن طلبك...</p>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="bg-white py-8 md:py-16">
+        <div class="container mx-auto px-4">
+            <h2 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-8 md:mb-12">مميزات خدمة التتبع</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                <div class="text-center p-4 md:p-6">
+                    <div class="text-3xl md:text-4xl mb-3 md:mb-4">⚡</div>
+                    <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-2">تتبع فوري</h3>
+                    <p class="text-sm md:text-base text-gray-600">احصل على معلومات طلبك فوراً بمجرد إدخال رقم التتبع</p>
+                </div>
+                <div class="text-center p-4 md:p-6">
+                    <div class="text-3xl md:text-4xl mb-3 md:mb-4">🔄</div>
+                    <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-2">تحديث مستمر</h3>
+                    <p class="text-sm md:text-base text-gray-600">نحدث حالة طلبك تلقائياً في كل مرحلة من مراحل الشحن</p>
+                </div>
+                <div class="text-center p-4 md:p-6">
+                    <div class="text-3xl md:text-4xl mb-3 md:mb-4">🛡️</div>
+                    <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-2">آمن وموثوق</h3>
+                    <p class="text-sm md:text-base text-gray-600">معلومات طلبك محمية ومشفرة بأعلى معايير الأمان</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Initialize Firebase
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDEP35xsyNnDFNY4XEjm9ipvTBk44SKQ1Y",
             authDomain: "qq-9acb9.firebaseapp.com",
@@ -195,135 +149,184 @@
             messagingSenderId: "541616407142",
             appId: "1:541616407142:web:95d8b7773b371b05e7a3a7"
         };
-
+        
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const trackBtn = document.getElementById('trackBtn');
-            const orderNumberInput = document.getElementById('orderNumber');
-            const orderStatusDiv = document.getElementById('orderStatus');
-            const errorAlert = document.getElementById('errorAlert');
-            const loadingDiv = document.getElementById('loading');
+        // Order statuses
+        const statuses = [
+            { name: "تم الشراء", color: "bg-blue-500", icon: "🛒", description: "تم تأكيد طلبك وبدء المعالجة" },
+            { name: "جاري تجهيز الطلب", color: "bg-yellow-500", icon: "📦", description: "يتم تجهيز وتعبئة طلبك حالياً" },
+            { name: "تم الشحن", color: "bg-purple-500", icon: "🚛", description: "تم شحن طلبك من المورد" },
+            { name: "تم الاستلام في الكويت", color: "bg-orange-500", icon: "🏢", description: "وصل طلبك إلى مستودعنا في الكويت" },
+            { name: "تم الشحن للعراق", color: "bg-indigo-500", icon: "✈️", description: "طلبك في الطريق إليك في العراق" },
+            { name: "تم التسليم", color: "bg-green-500", icon: "✅", description: "تم تسليم طلبك بنجاح!" }
+        ];
 
-            trackBtn.addEventListener('click', trackOrder);
-            orderNumberInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    trackOrder();
-                }
-            });
-
-            function trackOrder() {
-                const orderNumber = orderNumberInput.value.trim();
-
-                if (!orderNumber) {
-                    showError('الرجاء إدخال رقم الطلب');
-                    return;
-                }
-
-                // Show loading
-                loadingDiv.classList.remove('hidden');
-                orderStatusDiv.classList.add('hidden');
-                errorAlert.classList.add('hidden');
-
-                // Check if order exists in database
-                const orderRef = database.ref('orders/' + orderNumber);
-                orderRef.once('value')
-                    .then((snapshot) => {
-                        loadingDiv.classList.add('hidden');
-
-                        if (snapshot.exists()) {
-                            const orderData = snapshot.val();
-                            displayOrderStatus(orderNumber, orderData);
-                        } else {
-                            showError('رقم الطلب غير صحيح أو غير موجود');
-                        }
-                    })
-                    .catch((error) => {
-                        loadingDiv.classList.add('hidden');
-                        showError('حدث خطأ أثناء جلب بيانات الطلب');
-                        console.error('Error fetching order:', error);
-                    });
+        // Track order function
+        function trackOrder() {
+            const trackingNumber = document.getElementById('trackingInput').value.trim();
+            
+            if (!trackingNumber) {
+                alert('يرجى إدخال رقم التتبع');
+                return;
             }
 
-            function displayOrderStatus(orderNumber, orderData) {
-                document.getElementById('displayOrderNumber').querySelector('span').textContent = orderNumber;
-                document.getElementById('currentStatus').querySelector('span').textContent = orderData.status;
-
-                const timeline = document.getElementById('statusTimeline');
-                timeline.innerHTML = '';
-
-                // Define all possible statuses in order (with "جاري التجهيز" last)
-                const allStatuses = [
-                    { id: 'purchased', title: 'تم الشراء', desc: 'تم شراء المنتج بنجاح', icon: 'fa-check-circle', color: 'text-green-500' },
-                    { id: 'shipped_uae', title: 'تم الشحن للإمارات', desc: 'تم شحن الطلب إلى الإمارات', icon: 'fa-plane-departure', color: 'text-blue-500' },
-                    { id: 'received_uae', title: 'تم الاستلام في الإمارات', desc: 'تم استلام الطلب في مستودع الإمارات', icon: 'fa-warehouse', color: 'text-indigo-500' },
-                    { id: 'shipped_iraq', title: 'تم الشحن للعراق', desc: 'تم شحن الطلب إلى العراق', icon: 'fa-truck', color: 'text-purple-500' },
-                    { id: 'preparing', title: 'جاري التجهيز', desc: 'سوف يصل طلبك خلال 24 ساعة', icon: 'fa-cog', color: 'text-yellow-500' }
-                ];
-
-                // Find the current status index
-                let currentStatusIndex = -1;
-                for (let i = 0; i < allStatuses.length; i++) {
-                    if (allStatuses[i].title === orderData.status) {
-                        currentStatusIndex = i;
-                        break;
+            showLoading();
+            
+            // Search for the order in Firebase
+            database.ref('orders').orderByChild('trackingNumber').equalTo(trackingNumber).once('value')
+                .then((snapshot) => {
+                    hideLoading();
+                    
+                    if (snapshot.exists()) {
+                        const orderData = Object.values(snapshot.val())[0];
+                        displayTrackingResults(orderData);
+                    } else {
+                        showNoResults();
                     }
-                }
-
-                // Create timeline steps
-                allStatuses.forEach((status, index) => {
-                    const stepDiv = document.createElement('div');
-                    stepDiv.className = 'timeline-item relative';
-
-                    if (index < currentStatusIndex) {
-                        stepDiv.classList.add('completed');
-                    } else if (index === currentStatusIndex) {
-                        stepDiv.classList.add('active');
-                    }
-
-                    const dotDiv = document.createElement('div');
-                    dotDiv.className = 'timeline-dot';
-                    stepDiv.appendChild(dotDiv);
-
-                    const contentDiv = document.createElement('div');
-                    contentDiv.className = 'bg-gray-50 p-4 rounded-lg border border-gray-200';
-
-                    const titleDiv = document.createElement('div');
-                    titleDiv.className = 'flex items-center mb-2';
-                    titleDiv.innerHTML = `
-                        <i class="fas ${status.icon} ${status.color} ml-2"></i>
-                        <h4 class="font-bold ${index === currentStatusIndex ? 'text-purple-600' : 'text-gray-800'}">${status.title}</h4>
-                    `;
-
-                    const descDiv = document.createElement('p');
-                    descDiv.className = 'text-gray-600 text-sm mb-1';
-                    descDiv.textContent = status.desc;
-
-                    const dateDiv = document.createElement('div');
-                    dateDiv.className = 'text-xs text-gray-500 flex items-center';
-                    dateDiv.innerHTML = `
-                        <i class="far fa-clock ml-2"></i>
-                        ${orderData.timestamp ? new Date(orderData.timestamp).toLocaleString('ar-SA') : 'غير معروف'}
-                    `;
-
-                    contentDiv.appendChild(titleDiv);
-                    contentDiv.appendChild(descDiv);
-                    contentDiv.appendChild(dateDiv);
-                    stepDiv.appendChild(contentDiv);
-
-                    timeline.appendChild(stepDiv);
+                })
+                .catch((error) => {
+                    hideLoading();
+                    alert('حدث خطأ في البحث: ' + error.message);
                 });
+        }
 
-                orderStatusDiv.classList.remove('hidden');
-            }
+        // Display tracking results
+        function displayTrackingResults(order) {
+            const resultsDiv = document.getElementById('trackingResults');
+            const currentStatus = statuses[order.status];
+            const progress = ((order.status + 1) / statuses.length) * 100;
+            
+            resultsDiv.innerHTML = `
+                <div class="bg-white rounded-2xl p-4 md:p-8 card-shadow fade-in max-w-4xl mx-auto">
+                    <!-- Order Header -->
+                    <div class="text-center mb-6 md:mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 ${currentStatus.color} rounded-full text-white text-2xl md:text-3xl mb-3 md:mb-4 pulse-animation">
+                            ${currentStatus.icon}
+                        </div>
+                        <h2 class="text-xl md:text-3xl font-bold text-gray-800 mb-2 break-all">رقم التتبع: ${order.trackingNumber}</h2>
+                        <p class="text-base md:text-xl text-gray-600 px-2">${currentStatus.description}</p>
+                    </div>
 
-            function showError(message) {
-                document.getElementById('errorText').textContent = message;
-                errorAlert.classList.remove('hidden');
-                orderStatusDiv.classList.add('hidden');
+                    <!-- Current Status Badge -->
+                    <div class="text-center mb-6 md:mb-8">
+                        <span class="${currentStatus.color} text-white px-4 md:px-6 py-2 md:py-3 rounded-full text-sm md:text-lg font-bold inline-flex items-center gap-2">
+                            ${currentStatus.icon} ${currentStatus.name}
+                        </span>
+                    </div>
+
+                    <!-- Progress Timeline -->
+                    <div class="mb-6 md:mb-8 overflow-x-auto">
+                        <div class="status-line relative mb-6 md:mb-8 min-w-full">
+                            <div class="status-progress" style="width: ${progress}%"></div>
+                            <div class="flex justify-between items-center relative min-w-max px-2">
+                                ${statuses.map((status, index) => `
+                                    <div class="status-step flex flex-col items-center mx-1">
+                                        <div class="w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center text-sm md:text-xl font-bold mb-2 transition-all duration-500 ${
+                                            index <= order.status 
+                                                ? status.color + ' text-white transform scale-110' 
+                                                : 'bg-gray-200 text-gray-500'
+                                        }">
+                                            ${status.icon}
+                                        </div>
+                                        <div class="text-center max-w-16 md:max-w-24">
+                                            <p class="text-xs md:text-xs font-medium ${index <= order.status ? 'text-gray-800' : 'text-gray-400'} leading-tight">
+                                                ${status.name}
+                                            </p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Details -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+                        <div class="bg-gray-50 rounded-xl p-4 md:p-6">
+                            <h3 class="text-base md:text-lg font-bold text-gray-800 mb-3 md:mb-4 flex items-center gap-2">
+                                📅 تفاصيل الطلب
+                            </h3>
+                            <div class="space-y-2 md:space-y-3">
+                                <div class="flex justify-between text-sm md:text-base">
+                                    <span class="text-gray-600">تاريخ الطلب:</span>
+                                    <span class="font-medium">${new Date(order.createdAt).toLocaleDateString('ar-EG')}</span>
+                                </div>
+                                <div class="flex justify-between text-sm md:text-base">
+                                    <span class="text-gray-600">آخر تحديث:</span>
+                                    <span class="font-medium">${new Date(order.lastUpdated).toLocaleDateString('ar-EG')}</span>
+                                </div>
+                                <div class="flex justify-between text-sm md:text-base">
+                                    <span class="text-gray-600">الحالة الحالية:</span>
+                                    <span class="font-medium text-blue-600">${currentStatus.name}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 md:p-6">
+                            <h3 class="text-base md:text-lg font-bold text-gray-800 mb-3 md:mb-4 flex items-center gap-2">
+                                📊 تقدم الشحن
+                            </h3>
+                            <div class="space-y-3 md:space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-2 text-sm md:text-base">
+                                        <span class="text-gray-600">نسبة الإنجاز</span>
+                                        <span class="font-bold text-blue-600">${Math.round(progress)}%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2 md:h-3">
+                                        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 md:h-3 rounded-full transition-all duration-1000" 
+                                             style="width: ${progress}%"></div>
+                                    </div>
+                                </div>
+                                <p class="text-xs md:text-sm text-gray-600">
+                                    ${order.status === 5 ? '🎉 تم تسليم طلبك بنجاح!' : 
+                                      order.status === 4 ? '🚚 طلبك في الطريق إليك' :
+                                      '⏳ طلبك قيد المعالجة'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            `;
+            
+            resultsDiv.classList.remove('hidden');
+            document.getElementById('noResults').classList.add('hidden');
+            
+            // Scroll to results
+            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Show loading animation
+        function showLoading() {
+            document.getElementById('loadingAnimation').classList.remove('hidden');
+            document.getElementById('trackingResults').classList.add('hidden');
+            document.getElementById('noResults').classList.add('hidden');
+        }
+
+        // Hide loading animation
+        function hideLoading() {
+            document.getElementById('loadingAnimation').classList.add('hidden');
+        }
+
+        // Show no results message
+        function showNoResults() {
+            document.getElementById('noResults').classList.remove('hidden');
+            document.getElementById('trackingResults').classList.add('hidden');
+        }
+
+        // Handle Enter key in search input
+        document.getElementById('trackingInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                trackOrder();
             }
         });
+
+        // Auto-focus on input when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('trackingInput').focus();
+        });
     </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97b9dcd605a7a626',t:'MTc1NzI4NjQ0OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
