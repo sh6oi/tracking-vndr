@@ -3,192 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>تتبع شحنتك</title>
+    <title>تتبع شحنتك – نسخة مبسطة</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', 'Tajawal', system-ui, sans-serif;
         }
 
         body {
-            background: linear-gradient(145deg, #f5f7fc 0%, #e9eef4 100%);
+            background: linear-gradient(135deg, #eef2f5 0%, #dce5ec 100%);
             min-height: 100vh;
+            padding: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
         }
 
-        .tracking-card {
-            background: white;
+        .track-container {
             max-width: 550px;
             width: 100%;
-            border-radius: 48px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1), 0 5px 12px rgba(0,0,0,0.05);
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
             overflow: hidden;
-            transition: all 0.3s ease;
         }
 
-        .header {
-            background: #1e3c72;
-            color: white;
-            padding: 30px 24px;
+        .card-header {
+            background: #0b2b3b;
+            padding: 18px 20px;
             text-align: center;
         }
 
-        .header h1 {
-            font-size: 1.9rem;
+        .card-header h1 {
+            font-size: 1.5rem;
             font-weight: 700;
-            letter-spacing: -0.3px;
-        }
-
-        .header p {
-            opacity: 0.85;
-            margin-top: 8px;
-            font-size: 1rem;
-        }
-
-        .content {
-            padding: 32px 24px 40px;
-        }
-
-        .search-box {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-        }
-
-        .search-box input {
-            flex: 1;
-            padding: 16px 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 44px;
-            font-size: 1rem;
-            background: #fff;
-            transition: 0.2s;
-            outline: none;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .search-box input:focus {
-            border-color: #1e3c72;
-            box-shadow: 0 0 0 3px rgba(30,60,114,0.2);
-        }
-
-        .search-box button {
-            background: #1e3c72;
-            border: none;
-            padding: 0 28px;
-            border-radius: 44px;
             color: white;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
         }
 
-        .search-box button:hover {
-            background: #0f2b4f;
-            transform: scale(0.96);
+        .card-header p {
+            font-size: 0.75rem;
+            color: #cbdbe0;
+            margin-top: 4px;
         }
 
-        .result {
-            background: #f8fafc;
-            border-radius: 32px;
-            padding: 24px;
-            text-align: center;
-            transition: all 0.2s;
-            border: 1px solid #eef2f8;
+        .search-area {
+            padding: 20px 20px 12px;
         }
 
-        .result .label {
+        .input-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .input-group input {
+            flex: 2;
+            padding: 12px 16px;
+            border: 1.5px solid #e2edf7;
+            border-radius: 50px;
             font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #5b6e8c;
+            text-align: center;
+            outline: none;
+            background: white;
+            color: #1f2f3e;
+        }
+
+        .input-group input:focus {
+            border-color: #0f6b8c;
+        }
+
+        .input-group button {
+            background: #0f6b8c;
+            border: none;
+            padding: 0 24px;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        /* شريط الحالات بدون أي خط */
+        .status-stepper {
+            padding: 16px 20px 24px;
+        }
+
+        .stepper-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #5f7f9e;
+            text-align: center;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            min-width: 55px;
+            background: transparent;
+        }
+
+        .step-icon {
+            width: 36px;
+            height: 36px;
+            background: #f0f4f9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 6px;
+            font-size: 1.1rem;
+            border: 1px solid #cddfea;
+            transition: all 0.2s;
+            color: #3e5a6b;
+        }
+
+        .step-label {
+            font-size: 0.55rem;
             font-weight: 600;
-            margin-bottom: 12px;
+            color: #6c7e91;
+            line-height: 1.2;
+            max-width: 70px;
+            margin: 0 auto;
         }
 
-        .result .status {
-            font-size: 1.8rem;
+        /* الحالة النشطة (بدون أخضر) */
+        .step.active .step-icon {
+            background: #0f6b8c;
+            border-color: #0f6b8c;
+            color: white;
+            box-shadow: 0 4px 8px rgba(15,107,140,0.2);
+        }
+
+        .step.active .step-label {
+            color: #0f6b8c;
             font-weight: 800;
-            background: linear-gradient(135deg, #1e3c72, #2b4f8c);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            word-break: break-word;
-            line-height: 1.3;
         }
 
-        .not-found {
-            color: #c2410c;
-            background: #fff2ed;
-            border-right: 5px solid #c2410c;
+        /* الحالة المكتملة - لون رمادي محايد */
+        .step.completed .step-icon {
+            background: #e9ecef;
+            border-color: #bdc4cc;
+            color: #4b5c6e;
+        }
+        .step.completed .step-label {
+            color: #7c8ea0;
+        }
+
+        /* بطاقة الحالة الرئيسية */
+        .main-status-card {
+            background: #f8fafd;
+            border-radius: 32px;
+            margin: 8px 20px 0;
+            padding: 14px 12px;
+            text-align: center;
+            border-right: 4px solid #0f6b8c;
+        }
+
+        .status-badge-large {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #0b2b3b;
+            margin-bottom: 6px;
         }
 
         .order-id {
-            margin-top: 16px;
-            font-size: 0.8rem;
-            color: #6c7a91;
-            background: #eef2ff;
+            background: #eef2fa;
             display: inline-block;
-            padding: 6px 14px;
-            border-radius: 40px;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #1f6390;
+        }
+
+        .error-message {
+            color: #b91c1c;
+            background: #fff0f0;
+            border-radius: 30px;
+            padding: 12px;
+            font-size: 0.8rem;
+            text-align: center;
         }
 
         footer {
             text-align: center;
-            font-size: 0.75rem;
-            padding: 20px 24px;
+            padding: 14px;
+            font-size: 0.65rem;
             background: #f1f5f9;
-            color: #5b6e8c;
+            color: #5f7f9e;
         }
 
-        @media (max-width: 500px) {
-            .search-box button {
-                width: 100%;
-                justify-content: center;
-                padding: 16px;
+        @media (max-width: 480px) {
+            .step-label {
+                font-size: 0.5rem;
+                max-width: 55px;
             }
-            .result .status {
-                font-size: 1.4rem;
+            .step-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
             }
-            .header h1 {
-                font-size: 1.5rem;
+            .status-badge-large {
+                font-size: 1.1rem;
             }
         }
     </style>
 </head>
 <body>
-<div class="tracking-card">
-    <div class="header">
-        <h1>📦 تتبع شحنتك</h1>
-        <p>أدخل رقم التتبع لمعرفة الحالة</p>
-    </div>
-    <div class="content">
-        <div class="search-box">
-            <input type="text" id="trackingNumber" placeholder="مثال: ORD-1001" autocomplete="off">
-            <button id="trackBtn">🔍 تتبع</button>
+<div class="track-container">
+    <div class="card">
+        <div class="card-header">
+            <h1>📦 تتبع شحنتك</h1>
+            <p>أدخل رقم التتبع لمعرفة التفاصيل</p>
         </div>
-        <div id="resultArea" class="result" style="display: none;">
-            <div class="label">حالة الطلب الحالية</div>
-            <div class="status" id="statusText">---</div>
-            <div class="order-id" id="orderIdDisplay"></div>
+        <div class="search-area">
+            <div class="input-group">
+                <input type="text" id="trackingNumber" placeholder="مثال: ORD-1001" autocomplete="off">
+                <button id="trackBtn">🔍 تتبع</button>
+            </div>
         </div>
+
+        <div id="resultDynamic" style="display: none;">
+            <div class="main-status-card">
+                <div class="status-badge-large" id="statusTextLarge">---</div>
+                <div class="order-id" id="orderIdDisplay"></div>
+            </div>
+            <div class="status-stepper">
+                <div class="stepper-title">⛵ مراحل الشحنة</div>
+                <div class="steps" id="stepsContainer"></div>
+            </div>
+        </div>
+        <div id="errorArea" style="display: none; padding: 0 20px 20px;">
+            <div class="error-message" id="errorMsg">⚠️ الطلب غير موجود</div>
+        </div>
+        <footer>جميع الحالات محدثة فورياً</footer>
     </div>
-    <footer>جميع الحالات محدثة بشكل فوري من نظام الإدارة</footer>
 </div>
 
 <script type="module">
-    // Firebase Configuration (مقدم منك)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
     import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
 
@@ -206,11 +278,65 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    const STATUS_FLOW = [
+        "جاري المعالجة",
+        "جاري التجهيز",
+        "قيد الشحن الى الامارات",
+        "قيد الشحن الى العراق",
+        "تم الاستلام في البصرة",
+        "جاري الشحن لمخازننا في الناصرية",
+        "وصلت شحنتك بنجاح"
+    ];
+
+    const STATUS_ICONS = {
+        "جاري المعالجة": "⚙️",
+        "جاري التجهيز": "📦",
+        "قيد الشحن الى الامارات": "✈️",
+        "قيد الشحن الى العراق": "🚛",
+        "تم الاستلام في البصرة": "✅",
+        "جاري الشحن لمخازننا في الناصرية": "🏭",
+        "وصلت شحنتك بنجاح": "🎉"
+    };
+
     const trackInput = document.getElementById('trackingNumber');
     const trackBtn = document.getElementById('trackBtn');
-    const resultArea = document.getElementById('resultArea');
-    const statusText = document.getElementById('statusText');
-    const orderIdDisplay = document.getElementById('orderIdDisplay');
+    const resultDiv = document.getElementById('resultDynamic');
+    const errorDiv = document.getElementById('errorArea');
+    const statusTextLarge = document.getElementById('statusTextLarge');
+    const orderIdDisplaySpan = document.getElementById('orderIdDisplay');
+    const stepsContainer = document.getElementById('stepsContainer');
+
+    function buildStepper() {
+        stepsContainer.innerHTML = '';
+        STATUS_FLOW.forEach((status) => {
+            const stepDiv = document.createElement('div');
+            stepDiv.className = 'step';
+            stepDiv.setAttribute('data-status', status);
+            stepDiv.innerHTML = `
+                <div class="step-icon">${STATUS_ICONS[status] || '📌'}</div>
+                <div class="step-label">${status}</div>
+            `;
+            stepsContainer.appendChild(stepDiv);
+        });
+    }
+
+    function updateStepper(currentStatus) {
+        const steps = document.querySelectorAll('.step');
+        let activeIndex = -1;
+        for (let i = 0; i < STATUS_FLOW.length; i++) {
+            if (STATUS_FLOW[i] === currentStatus) {
+                activeIndex = i;
+                break;
+            }
+        }
+        steps.forEach(step => step.classList.remove('active', 'completed'));
+        if (activeIndex !== -1) {
+            steps[activeIndex].classList.add('active');
+            for (let i = 0; i < activeIndex; i++) {
+                steps[i].classList.add('completed');
+            }
+        }
+    }
 
     async function trackOrder() {
         let orderId = trackInput.value.trim();
@@ -218,45 +344,33 @@
             alert("الرجاء إدخال رقم التتبع");
             return;
         }
-
-        // عرض حالة التحميل
-        resultArea.style.display = "block";
-        statusText.textContent = "جاري البحث ...";
-        statusText.style.color = "#5b6e8c";
-        resultArea.classList.remove("not-found");
-        orderIdDisplay.textContent = "";
-
+        resultDiv.style.display = 'none';
+        errorDiv.style.display = 'none';
+        resultDiv.style.display = 'block';
+        statusTextLarge.textContent = "🔍 جاري البحث...";
         try {
-            const orderRef = ref(db, `orders/${orderId}`);
-            const snapshot = await get(orderRef);
-
+            const snapshot = await get(ref(db, `orders/${orderId}`));
             if (snapshot.exists()) {
-                const orderData = snapshot.val();
-                const currentStatus = orderData.status || "لا توجد حالة محددة";
-                statusText.textContent = currentStatus;
-                statusText.style.color = "#1e3c72";
-                orderIdDisplay.textContent = `رقم الطلب: ${orderId}`;
-                resultArea.classList.remove("not-found");
+                const currentStatus = snapshot.val().status || "جاري المعالجة";
+                statusTextLarge.textContent = `${STATUS_ICONS[currentStatus] || '📋'}  ${currentStatus}`;
+                orderIdDisplaySpan.textContent = `رقم الطلب: ${orderId}`;
+                updateStepper(currentStatus);
+                errorDiv.style.display = 'none';
             } else {
-                // لم يتم العثور على الطلب
-                statusText.textContent = "❌ لا يوجد طلب بهذا الرقم";
-                statusText.style.color = "#c2410c";
-                orderIdDisplay.textContent = "تأكد من الرقم وأعد المحاولة";
-                resultArea.classList.add("not-found");
+                resultDiv.style.display = 'none';
+                errorDiv.style.display = 'block';
+                document.getElementById('errorMsg').innerHTML = `❌ لا يوجد طلب برقم "${orderId}"`;
             }
-        } catch (error) {
-            console.error("خطأ في جلب البيانات:", error);
-            statusText.textContent = "⚠️ خطأ في الاتصال بقاعدة البيانات";
-            statusText.style.color = "#c2410c";
-            orderIdDisplay.textContent = "حاول لاحقاً";
-            resultArea.classList.add("not-found");
+        } catch (err) {
+            resultDiv.style.display = 'none';
+            errorDiv.style.display = 'block';
+            document.getElementById('errorMsg').innerHTML = `⚠️ خطأ في الاتصال: ${err.message}`;
         }
     }
 
     trackBtn.addEventListener('click', trackOrder);
-    trackInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') trackOrder();
-    });
+    trackInput.addEventListener('keypress', (e) => e.key === 'Enter' && trackOrder());
+    buildStepper();
 </script>
 </body>
 </html>
