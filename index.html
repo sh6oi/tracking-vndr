@@ -232,26 +232,24 @@
     <div class="card">
         <div class="card-header">
             <h1>📦 تتبع شحنتك</h1>
-            <p>أدخل رقم التتبع لعرض جميع المراحل مع تمييز المرحلة الحالية</p>
         </div>
         <div class="search-area">
             <div class="input-group">
-                <input type="text" id="trackingNumber" placeholder="مثال: ORD-1001" autocomplete="off">
+                <input type="text" id="trackingNumber" placeholder="مثال: 0001" autocomplete="off">
                 <button id="trackBtn">🔍 تتبع</button>
             </div>
-            <div class="example-hint">📋 ORD-1001 : مثال</div>
+            <div class="example-hint">📋 0001 : مثال</div>
         </div>
 
         <div id="resultDynamic" style="display: none;">
             <div class="status-stepper">
-                <div class="stepper-title">🚚 مراحل الشحن (المرحلة الحالية بلون سماوي)</div>
+                <div class="stepper-title">🚚 مراحل الشحن</div>
                 <div class="vertical-steps" id="stepsContainer"></div>
             </div>
         </div>
         <div id="errorArea" style="display: none; padding: 0 18px 18px;">
             <div class="error-message" id="errorMsg">⚠️ الطلب غير موجود</div>
         </div>
-        <footer>جميع المراحل معروضة - الحالة الزرقاء السماوية هي موقع شحنتك الآن</footer>
     </div>
 </div>
 
