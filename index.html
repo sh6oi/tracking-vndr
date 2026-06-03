@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>تتبع شحنتك – نسخة مبسطة</title>
+    <title>تتبع شحنتك – ألوان سمائية</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #eef2f5 0%, #dce5ec 100%);
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
             min-height: 100vh;
             padding: 16px;
             display: flex;
@@ -21,210 +21,208 @@
             align-items: center;
         }
 
+        /* تقليل العرض الأقصى */
         .track-container {
-            max-width: 550px;
+            max-width: 450px;
             width: 100%;
             margin: auto;
         }
 
         .card {
             background: white;
-            border-radius: 40px;
-            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+            border-radius: 36px;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
             overflow: hidden;
         }
 
+        /* هيدر بتدرج سماوي */
         .card-header {
-            background: #0b2b3b;
-            padding: 18px 20px;
+            background: linear-gradient(135deg, #0c4a6e 0%, #0284c7 100%);
+            padding: 16px 18px;
             text-align: center;
         }
 
         .card-header h1 {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 700;
-            color: white;
+            color: #f0f9ff;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .card-header p {
-            font-size: 0.75rem;
-            color: #cbdbe0;
+            font-size: 0.7rem;
+            color: #cffafe;
             margin-top: 4px;
         }
 
         .search-area {
-            padding: 20px 20px 12px;
+            padding: 18px 18px 10px;
         }
 
         .input-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .input-group input {
             flex: 2;
-            padding: 12px 16px;
-            border: 1.5px solid #e2edf7;
+            padding: 10px 14px;
+            border: 1.5px solid #cbd5e1;
             border-radius: 50px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-align: center;
             outline: none;
             background: white;
-            color: #1f2f3e;
+            color: #0c4a6e;
         }
 
         .input-group input:focus {
-            border-color: #0f6b8c;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 2px rgba(56,189,248,0.2);
+        }
+
+        .example-hint {
+            text-align: center;
+            font-size: 0.65rem;
+            margin-top: 8px;
+            color: #0284c7;
+            font-weight: 600;
         }
 
         .input-group button {
-            background: #0f6b8c;
+            background: #0284c7;
             border: none;
-            padding: 0 24px;
+            padding: 0 20px;
             border-radius: 50px;
             color: white;
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             cursor: pointer;
             transition: 0.2s;
         }
 
-        /* شريط الحالات بدون أي خط */
+        .input-group button:hover {
+            background: #0369a1;
+            transform: scale(0.97);
+        }
+
         .status-stepper {
-            padding: 16px 20px 24px;
+            padding: 14px 18px 20px;
         }
 
         .stepper-title {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 700;
-            color: #5f7f9e;
+            color: #0369a1;
             text-align: center;
-            margin-bottom: 20px;
-            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            letter-spacing: 0.3px;
         }
 
-        .steps {
+        .vertical-steps {
             display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .step {
-            flex: 1;
-            text-align: center;
-            min-width: 55px;
-            background: transparent;
+        .step-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 22px;
+            padding: 10px 14px;
+            transition: all 0.2s ease;
         }
 
         .step-icon {
-            width: 36px;
-            height: 36px;
-            background: #f0f4f9;
-            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            background: #eef2ff;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 6px;
-            font-size: 1.1rem;
-            border: 1px solid #cddfea;
-            transition: all 0.2s;
-            color: #3e5a6b;
+            font-size: 1.3rem;
+            color: #0369a1;
         }
 
         .step-label {
-            font-size: 0.55rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            color: #6c7e91;
-            line-height: 1.2;
-            max-width: 70px;
-            margin: 0 auto;
+            color: #334155;
+            flex: 1;
         }
 
-        /* الحالة النشطة (بدون أخضر) */
-        .step.active .step-icon {
-            background: #0f6b8c;
-            border-color: #0f6b8c;
+        /* المرحلة النشطة بلون سماوي */
+        .step-card.active {
+            background: #e0f2fe;
+            border-color: #38bdf8;
+            box-shadow: 0 2px 6px rgba(56,189,248,0.1);
+        }
+
+        .step-card.active .step-icon {
+            background: #0ea5e9;
             color: white;
-            box-shadow: 0 4px 8px rgba(15,107,140,0.2);
         }
 
-        .step.active .step-label {
-            color: #0f6b8c;
+        .step-card.active .step-label {
+            color: #0369a1;
             font-weight: 800;
         }
 
-        /* الحالة المكتملة - لون رمادي محايد */
-        .step.completed .step-icon {
-            background: #e9ecef;
-            border-color: #bdc4cc;
-            color: #4b5c6e;
-        }
-        .step.completed .step-label {
-            color: #7c8ea0;
+        .step-card.inactive {
+            background: #ffffff;
+            border-color: #e2e8f0;
         }
 
-        /* بطاقة الحالة الرئيسية */
-        .main-status-card {
-            background: #f8fafd;
-            border-radius: 32px;
-            margin: 8px 20px 0;
-            padding: 14px 12px;
-            text-align: center;
-            border-right: 4px solid #0f6b8c;
+        .step-card.inactive .step-icon {
+            background: #f1f5f9;
+            color: #94a3b8;
         }
 
-        .status-badge-large {
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: #0b2b3b;
-            margin-bottom: 6px;
-        }
-
-        .order-id {
-            background: #eef2fa;
-            display: inline-block;
-            padding: 4px 14px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #1f6390;
+        .step-card.inactive .step-label {
+            color: #64748b;
         }
 
         .error-message {
             color: #b91c1c;
             background: #fff0f0;
-            border-radius: 30px;
-            padding: 12px;
-            font-size: 0.8rem;
+            border-radius: 28px;
+            padding: 10px;
+            font-size: 0.75rem;
             text-align: center;
         }
 
         footer {
             text-align: center;
-            padding: 14px;
-            font-size: 0.65rem;
-            background: #f1f5f9;
-            color: #5f7f9e;
+            padding: 12px;
+            font-size: 0.6rem;
+            background: #ecfdf5;
+            color: #0e7faf;
         }
 
         @media (max-width: 480px) {
-            .step-label {
-                font-size: 0.5rem;
-                max-width: 55px;
-            }
             .step-icon {
-                width: 30px;
-                height: 30px;
-                font-size: 0.9rem;
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+                border-radius: 14px;
             }
-            .status-badge-large {
-                font-size: 1.1rem;
+            .step-label {
+                font-size: 0.7rem;
+            }
+            .step-card {
+                padding: 8px 12px;
+                gap: 10px;
+            }
+            .card-header h1 {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -234,29 +232,26 @@
     <div class="card">
         <div class="card-header">
             <h1>📦 تتبع شحنتك</h1>
-            <p>أدخل رقم التتبع لمعرفة التفاصيل</p>
+            <p>أدخل رقم التتبع لعرض جميع المراحل مع تمييز المرحلة الحالية</p>
         </div>
         <div class="search-area">
             <div class="input-group">
                 <input type="text" id="trackingNumber" placeholder="مثال: ORD-1001" autocomplete="off">
                 <button id="trackBtn">🔍 تتبع</button>
             </div>
+            <div class="example-hint">📋 ORD-1001 : مثال</div>
         </div>
 
         <div id="resultDynamic" style="display: none;">
-            <div class="main-status-card">
-                <div class="status-badge-large" id="statusTextLarge">---</div>
-                <div class="order-id" id="orderIdDisplay"></div>
-            </div>
             <div class="status-stepper">
-                <div class="stepper-title">⛵ مراحل الشحنة</div>
-                <div class="steps" id="stepsContainer"></div>
+                <div class="stepper-title">🚚 مراحل الشحن (المرحلة الحالية بلون سماوي)</div>
+                <div class="vertical-steps" id="stepsContainer"></div>
             </div>
         </div>
-        <div id="errorArea" style="display: none; padding: 0 20px 20px;">
+        <div id="errorArea" style="display: none; padding: 0 18px 18px;">
             <div class="error-message" id="errorMsg">⚠️ الطلب غير موجود</div>
         </div>
-        <footer>جميع الحالات محدثة فورياً</footer>
+        <footer>جميع المراحل معروضة - الحالة الزرقاء السماوية هي موقع شحنتك الآن</footer>
     </div>
 </div>
 
@@ -278,7 +273,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const STATUS_FLOW = [
+    const ALL_STATUSES = [
         "جاري المعالجة",
         "جاري التجهيز",
         "قيد الشحن الى الامارات",
@@ -302,40 +297,21 @@
     const trackBtn = document.getElementById('trackBtn');
     const resultDiv = document.getElementById('resultDynamic');
     const errorDiv = document.getElementById('errorArea');
-    const statusTextLarge = document.getElementById('statusTextLarge');
-    const orderIdDisplaySpan = document.getElementById('orderIdDisplay');
     const stepsContainer = document.getElementById('stepsContainer');
 
-    function buildStepper() {
+    function renderAllStages(currentStatus) {
         stepsContainer.innerHTML = '';
-        STATUS_FLOW.forEach((status) => {
+        ALL_STATUSES.forEach(status => {
+            const isActive = (status === currentStatus);
             const stepDiv = document.createElement('div');
-            stepDiv.className = 'step';
-            stepDiv.setAttribute('data-status', status);
+            stepDiv.className = 'step-card';
+            stepDiv.classList.add(isActive ? 'active' : 'inactive');
             stepDiv.innerHTML = `
                 <div class="step-icon">${STATUS_ICONS[status] || '📌'}</div>
                 <div class="step-label">${status}</div>
             `;
             stepsContainer.appendChild(stepDiv);
         });
-    }
-
-    function updateStepper(currentStatus) {
-        const steps = document.querySelectorAll('.step');
-        let activeIndex = -1;
-        for (let i = 0; i < STATUS_FLOW.length; i++) {
-            if (STATUS_FLOW[i] === currentStatus) {
-                activeIndex = i;
-                break;
-            }
-        }
-        steps.forEach(step => step.classList.remove('active', 'completed'));
-        if (activeIndex !== -1) {
-            steps[activeIndex].classList.add('active');
-            for (let i = 0; i < activeIndex; i++) {
-                steps[i].classList.add('completed');
-            }
-        }
     }
 
     async function trackOrder() {
@@ -347,14 +323,13 @@
         resultDiv.style.display = 'none';
         errorDiv.style.display = 'none';
         resultDiv.style.display = 'block';
-        statusTextLarge.textContent = "🔍 جاري البحث...";
+        stepsContainer.innerHTML = '<div class="step-card">جاري البحث...</div>';
+
         try {
             const snapshot = await get(ref(db, `orders/${orderId}`));
             if (snapshot.exists()) {
                 const currentStatus = snapshot.val().status || "جاري المعالجة";
-                statusTextLarge.textContent = `${STATUS_ICONS[currentStatus] || '📋'}  ${currentStatus}`;
-                orderIdDisplaySpan.textContent = `رقم الطلب: ${orderId}`;
-                updateStepper(currentStatus);
+                renderAllStages(currentStatus);
                 errorDiv.style.display = 'none';
             } else {
                 resultDiv.style.display = 'none';
@@ -370,7 +345,6 @@
 
     trackBtn.addEventListener('click', trackOrder);
     trackInput.addEventListener('keypress', (e) => e.key === 'Enter' && trackOrder());
-    buildStepper();
 </script>
 </body>
 </html>
